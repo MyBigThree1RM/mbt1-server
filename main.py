@@ -195,13 +195,14 @@ def cnt_dead():
 def result(name):
     params = request.get_json()
     sqldef.saveData(cursor, conn, params['event'], params['oneRM'], name)
-    f = open('test.csv', 'w')
+    where = 'personalData/' + params['event'] + '/' + name
+    f = open(where + '_data.csv', 'w')
 
     for i in data:    
         f.write(str(i).replace(' ', '')[1:-1] + '\n')
     f.close()
 
-    f = open('result.csv', 'w')
+    f = open(where + '_result.csv', 'w')
     for i in result:
         f.write(str(i) + '\n')
     f.close()
