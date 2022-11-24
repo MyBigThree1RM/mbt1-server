@@ -15,7 +15,8 @@ set foreign_key_checks = 1;
 create table Center (
 CCODE INT NOT NULL,
 Cname varchar(20) NOT NULL,
-Caddress varchar(20) NOT NULL,
+lat DOUBLE NULL,
+lon DOUBLE NULL,
 primary key(CCODE));
 
 
@@ -42,42 +43,80 @@ primary key(CEvent, UID, CCODE),
 foreign key (UID) references User(UID),
 foreign key (CCODE) references Center(CCODE));
 
+
+
 insert into Center
-values(0000, 'A GYM', '홍익대 체육관');
+values(1, 'T GYM', 37.550117, 126.924654);
 insert into Center
-values(1111, 'B GYM', '마포구 상수동');
+values(2, 'R GYM', 37.552609, 126.924997);
+insert into Center
+values(3, 'G GYM', 37.551317, 126.926260);
+insert into Center
+values(4, 'I GYM', 37.551502, 126.927278);
+insert into Center
+values(5, 'C GYM', 37.549186, 126.926041);
+insert into Center
+values(6, 'U GYM', 37.550209, 126.926487);
+
 
 insert into User
 values('kms', '1234');
 insert into User
 values('psy', '1234');
+insert into User
+values('kim', '1234');
+insert into User
+values('park', '1234');
+insert into User
+values('lee', '1234');
 
 insert into Record
-values('Squat', '22-05-01', 80, 'kms');
+values('Squat', '22-11-23', 0, 'kim');
 insert into Record
-values('Squat', '22-05-02', 60, 'kms');
+values('BenchPress', '22-11-23', 0, 'kim');
 insert into Record
-values('Squat', '22-05-03', 70, 'kms');
-insert into Record
-values('Squat', '22-05-05', 90, 'kms');
+values('Deadlift', '22-11-23', 0, 'kim');
 
 insert into Record
-values('BenchPress', '22-05-01', 60, 'kms');
+values('Squat', '22-11-23', 0, 'lee');
 insert into Record
-values('BenchPress', '22-05-02', 80, 'kms');
+values('BenchPress', '22-11-23', 0, 'lee');
 insert into Record
-values('BenchPress', '22-05-03', 100, 'kms');
-insert into Record
-values('BenchPress', '22-05-05', 80, 'kms');
+values('Deadlift', '22-11-23', 0, 'lee');
 
 insert into Record
-values('Deadlift', '22-05-01', 100, 'kms');
+values('Squat', '22-11-23', 0, 'park');
 insert into Record
-values('Deadlift', '22-05-02', 110, 'kms');
+values('BenchPress', '22-11-23', 0, 'park');
 insert into Record
-values('Deadlift', '22-05-03', 100, 'kms');
+values('Deadlift', '22-11-23', 0, 'park');
+
 insert into Record
-values('Deadlift', '22-05-05', 110, 'kms');
+values('Squat', '22-11-01', 80, 'kms');
+insert into Record
+values('Squat', '22-11-02', 60, 'kms');
+insert into Record
+values('Squat', '22-11-03', 70, 'kms');
+insert into Record
+values('Squat', '22-11-05', 90, 'kms');
+
+insert into Record
+values('BenchPress', '22-11-01', 60, 'kms');
+insert into Record
+values('BenchPress', '22-11-02', 80, 'kms');
+insert into Record
+values('BenchPress', '22-11-03', 100, 'kms');
+insert into Record
+values('BenchPress', '22-11-05', 80, 'kms');
+
+insert into Record
+values('Deadlift', '22-11-01', 100, 'kms');
+insert into Record
+values('Deadlift', '22-11-02', 110, 'kms');
+insert into Record
+values('Deadlift', '22-11-03', 100, 'kms');
+insert into Record
+values('Deadlift', '22-11-05', 110, 'kms');
 
 insert into Record
 values('Squat', '22-05-05', 120, 'psy');
@@ -87,49 +126,72 @@ insert into Record
 values('Deadlift', '22-05-05', 80, 'psy');
 
 
--- 1
-select * from Center;
-select * from User;
-select * from Record;
+insert into Challenge
+values('Squat', 120, 'kms', 3);
+insert into Challenge
+values('Deadlift', 180, 'kms', 3);
+insert into Challenge
+values('Squat', 20, 'psy', 3);
+insert into Challenge
+values('Deadlift', 80, 'psy', 3);
+insert into Challenge
+values('Deadlift', 280, 'park', 3);
 
-select * from Record where REvent = 'Deadlift' and UID = 'kms' order by RDate desc LIMIT 7;
-select * from Record where REvent = 'Squat' and UID = 'kms' order by RDate desc LIMIT 7;
-select * from Record where REvent = 'BenchPress' and UID = 'kms' order by RDate desc LIMIT 7;
+insert into Challenge
+values('Squat', 220, 'kms', 2);
+insert into Challenge
+values('Deadlift', 180, 'kms', 2);
+insert into Challenge
+values('Squat', 120, 'psy', 2);
+insert into Challenge
+values('Deadlift', 180, 'psy', 2);
+
+insert into Challenge
+values('Squat', 150, 'lee', 6);
+insert into Challenge
+values('Deadlift', 135, 'lee', 6);
+insert into Challenge
+values('Squat', 170, 'psy', 6);
+insert into Challenge
+values('Deadlift', 120, 'kim', 6);
+insert into Challenge
+values('BenchPress', 120, 'kim', 6);
+
+insert into Challenge
+values('Squat', 150, 'lee', 4);
+insert into Challenge
+values('Deadlift', 135, 'lee', 4);
+insert into Challenge
+values('Squat', 170, 'psy', 4);
+insert into Challenge
+values('Deadlift', 120, 'kim', 4);
+insert into Challenge
+values('BenchPress', 120, 'kim', 4);
+
+insert into Challenge
+values('Squat', 150, 'lee', 5);
+insert into Challenge
+values('Deadlift', 135, 'park', 5);
+insert into Challenge
+values('Squat', 170, 'psy', 5);
+insert into Challenge
+values('Deadlift', 120, 'kms', 5);
+insert into Challenge
+values('BenchPress', 140, 'kim', 5);
 
 
-
-select UID, MAX(R1rm)
-from Record
-where REvent = 'Squat'
-group by UID;
-
-
-
-
-
-select * from User where UID = 'kms' and UPW = '1234';
-select * from User;
-
-
-select MAX(R1rm) from Record where REvent = 'Squat' and UID = 'kms';
-
-select * from Record where UID = 'kms' and REvent = 'Squat';
-
-select RDate, R1rm from Record where UID = 'kms' and REvent = 'Squat' order by RDate desc LIMIT 5;
+insert into Challenge
+values('Deadlift', 230, 'lee', 1);
+insert into Challenge
+values('Deadlift', 180, 'park', 1);
 
 
 
 insert into Record
-values('Deadlift', '22-09-02', 200, 'kms');
+values('Squat', '22-11-25', 90, 'kms');
 insert into Record
-values('Squat', '22-09-02', 300, 'kms');
+values('Deadlift', '22-11-25', 130, 'kms');
 insert into Record
-values('BenchPress', '22-09-02', 400, 'kms');
+values('BenchPress', '22-11-25', 110, 'kms');
 
-insert into Record 
-values('BenchPress', '22-10-21', 300, 'kms');
-select * from Record where UID = 'kms' and REvent = 'BenchPress';
-update Record 
-set R1rm = 700 where UID = 'kms' and REvent = 'BenchPress' and RDate = '22-10-21';
 
-select * from Record where UID = 'kms' and REvent = 'BenchPress';
