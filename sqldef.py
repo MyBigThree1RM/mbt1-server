@@ -71,6 +71,26 @@ def saveData(cur, con, event, oneRM, uid):
         con.rollback()
         print("실패")
 
+def saveChallenge(cur, con, event, oneRM, uid, gym_code):
+    try:
+        try:
+            # Insert Data
+            insert_sql = "insert into Challenge values('" + event + "', " + str(oneRM) + ", '" + uid + "', " + str(gym_code) + ");"
+            cur.execute(insert_sql)
+            con.commit()
+            print(uid + event + " Challenge Code 1 생성")
+
+        except:
+            # Update Data
+            update_sql = "update Challenge set CWeight = " + str(oneRM) + " where UID = '" + uid + "' and CEvent = '" + event + "' and CCODE = " + gym_code +";"
+            cur.execute(update_sql)
+            con.commit()
+            print(uid + event + " Challenge Code 1 최신화")
+    except:
+        con.rollback()
+        print("실패")
+
+
 
 
 def get_userData_s(cur, con, uid):
@@ -168,7 +188,7 @@ def rank_sys(cur, con):
         conn.commit()
 
         userID = cur.fetchall()
-
+        print(userID)
         for i in userID:
             cur.execute("select MAX(R1rm) from Record where REvent = 'Squat' and UID = '" + i[0] + "';")
             best_s = cur.fetchall()
@@ -191,6 +211,63 @@ def rank_sys(cur, con):
         print("랭크 조회 실패")
         con.rollback()
 
+def getRecord(cur, con):
+    try:
+        ranking = []
+        cur.execute("select CCode from Center;")
+        # con.commit()
+        gymCode = cur.fetchall()
+
+        for code in gymCode:
+            tempRank = {}
+            tempRank['one'] = ' null '
+            tempRank['two'] = ' null '
+            tempRank['three'] = ' null '
+            tempRank['four'] = ' null '
+            tempRank['five'] = ' null '
+
+            tempRank['Code'] = code[0]
+            cur.execute("select Cname, lat, lon from Center where CCode = " + str(code[0]) + ";")
+            name, lat, lon = cur.fetchall()[0]
+            tempRank['name'] = name
+            tempRank['lat'] = lat
+            tempRank['lon'] = lon
+
+            # con.commit()
+            cur.execute("select UID from Challenge where CCode = " + str(code[0]) + ";")
+            # con.commit()
+            userID = set(cur.fetchall())
+
+            tempRank2 = []
+            for uid in userID:
+                cur.execute("select sum(CWeight) from Challenge where CCode = " + str(code[0]) + " and UID = '" + str(uid[0]) + "';")
+                # con.commit()
+                tempRank2.append([str(uid[0]), int(cur.fetchone()[0])])
+                tempRank2.sort(key = lambda x : -x[1])
+
+            for i in range(len(tempRank2)):
+                if i == 0:
+                    tempRank['one'] = tempRank2[i][0] + ' ' + str(tempRank2[i][1])
+                elif i == 1:
+                    tempRank['two'] = tempRank2[i][0] + ' ' + str(tempRank2[i][1])
+                elif i == 2:
+                    tempRank['three'] = tempRank2[i][0] + ' ' + str(tempRank2[i][1])
+                elif i == 3:
+                    tempRank['four'] = tempRank2[i][0] + ' ' + str(tempRank2[i][1])
+                elif i == 4:
+                    tempRank['five'] = tempRank2[i][0] + ' ' + str(tempRank2[i][1])
+
+            ranking.append(tempRank)
+
+        for i in ranking:
+            print(i)
+        con.commit()
+
+    except:
+        print("Failed!")
+        con.rollback()
+
+    return ranking
 
 
 
@@ -204,8 +281,8 @@ if __name__ == '__main__':
     # print(sign_up(cursor, conn, "kms", "0000"))
     # print(log_in(cursor, conn, "kms", "1234"))
 
-    print(rank_sys(cursor, conn))
-
+    # print(rank_sys(cursor, conn))
+    print(saveChallenge(cursor, conn, 'Sqaut', 200, 'kms'))
     # print(get_userData_s(cursor, conn, 'kms'))
     # print(get_userData_b(cursor, conn, 'kms'))
     # print(get_userData_d(cursor, conn, 'kms'))

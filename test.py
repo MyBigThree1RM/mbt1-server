@@ -106,13 +106,16 @@ with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as 
 
     cv2.imshow('MediaPipe Pose', frame)
     if cv2.waitKey(5) & 0xFF == 27:
-        f = open('test.csv', 'w')
+        name = 'kms'
+        event = 'Squat'
+        where = './personalData/' + event + '/' + name
+        f = open(where + '_data.csv', 'w')
 
         for i in data:    
           f.write(str(i).replace(' ', '')[1:-1] + '\n')
         f.close()
 
-        f = open('result.csv', 'w')
+        f = open(where + '_result.csv', 'w')
         for i in result:
           f.write(str(i) + '\n')
         f.close()

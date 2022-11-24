@@ -5,6 +5,7 @@ import pymysql
 import count
 import sqldef
 from collections import deque
+import json
 import config
 
 conn = pymysql.connect(host=config.DATABASE_CONFIG['host'],
@@ -33,14 +34,16 @@ def gen_frames(event):
 
     if event == "Squat":
         reps_s = 0
-        camera = cv2.VideoCapture('./test_video/squat.mp4')
-        # camera = cv2.VideoCapture(0)
+        # camera = cv2.VideoCapture('./test_video/squat.mp4')
+        camera = cv2.VideoCapture(0)
     elif event == "BenchPress":
         reps_b = 0
         camera = cv2.VideoCapture('./test_video/pushup.mp4')
+        # camera = cv2.VideoCapture(0)
     elif event == "Deadlift":
-        reps_d
+        reps_d = 0
         camera = cv2.VideoCapture('./test_video/deadlift.mp4')
+         # camera = cv2.VideoCapture(0)
 
 
     with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
@@ -59,14 +62,14 @@ def gen_frames(event):
             # print(frame.shape) # 이미지 세로, 가로, channel
             height, width, _ = frame.shape
 
-            cv2.rectangle(frame, (width-width//3,height-height//3), (width,height), (255,255,255), -1)
-            cv2.putText(frame, 'REPS', (int(width-width//3.1),int(height-height//3.6)), cv2.FONT_HERSHEY_SIMPLEX, 1.6, (0,0,0), 2, cv2.LINE_AA)
-            if event == "Squat":
-                cv2.putText(frame, str(reps_s), (int(width-width//4),int(height-height//9)), cv2.FONT_HERSHEY_SIMPLEX, 4, (0,0,0), 4, cv2.LINE_AA)
-            elif event == "BenchPress":
-                cv2.putText(frame, str(reps_b), (int(width-width//4),int(height-height//9)), cv2.FONT_HERSHEY_SIMPLEX, 4, (0,0,0), 4, cv2.LINE_AA)
-            elif event == "Deadlift":
-                cv2.putText(frame, str(reps_d), (int(width-width//4),int(height-height//9)), cv2.FONT_HERSHEY_SIMPLEX, 4, (0,0,0), 4, cv2.LINE_AA)
+            # cv2.rectangle(frame, (width-width//3,height-height//3), (width,height), (255,255,255), -1)
+            # cv2.putText(frame, 'REPS', (int(width-width//3.1),int(height-height//3.6)), cv2.FONT_HERSHEY_SIMPLEX, 1.6, (0,0,0), 2, cv2.LINE_AA)
+            # if event == "Squat":
+            #     cv2.putText(frame, str(reps_s), (int(width-width//4),int(height-height//9)), cv2.FONT_HERSHEY_SIMPLEX, 4, (0,0,0), 4, cv2.LINE_AA)
+            # elif event == "BenchPress":
+            #     cv2.putText(frame, str(reps_b), (int(width-width//4),int(height-height//9)), cv2.FONT_HERSHEY_SIMPLEX, 4, (0,0,0), 4, cv2.LINE_AA)
+            # elif event == "Deadlift":
+            #     cv2.putText(frame, str(reps_d), (int(width-width//4),int(height-height//9)), cv2.FONT_HERSHEY_SIMPLEX, 4, (0,0,0), 4, cv2.LINE_AA)
             
             cv2.putText(frame, state[-1], (0,int(height//10)), cv2.FONT_HERSHEY_SIMPLEX, 2, (255,255,255), 2, cv2.LINE_AA)
 
@@ -147,7 +150,7 @@ def gen_frames(event):
             except:
                 pass
 
-            resize_frame = cv2.resize(frame, (390, 460), interpolation=cv2.INTER_CUBIC)
+            resize_frame = cv2.resize(frame, (390, 360), interpolation=cv2.INTER_CUBIC)
             _, buffer = cv2.imencode('.jpg', resize_frame)
             frame = buffer.tobytes()
             yield (b'--frame\r\n'
@@ -195,6 +198,10 @@ def cnt_dead():
 def result(name):
     params = request.get_json()
     sqldef.saveData(cursor, conn, params['event'], params['oneRM'], name)
+
+
+    sqldef.saveChallenge(cursor, conn, params['event'], params['oneRM'], name, params['gym_code'])
+
     where = 'personalData/' + params['event'] + '/' + name
     f = open(where + '_data.csv', 'w')
 
@@ -242,9 +249,10 @@ def rank_data():
     print(ranking)
     return jsonify(data = ranking)
 
-@app.route('/map')
-def print_map():
-    return render_template('map.html')
+@app.route('/map', methods=['GET','POST'])
+def rank_map():
+    rank = sqldef.getRecord(cursor, conn)
+    return render_template('map.html', rank=json.dumps(rank))
 
 # Login Page
 @app.route('/login', methods = ['GET', 'POST'])
