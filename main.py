@@ -7,6 +7,7 @@ import sqldef
 from collections import deque
 import json
 import config
+from train import predict
 
 conn = pymysql.connect(host=config.DATABASE_CONFIG['host'],
                         user=config.DATABASE_CONFIG['user'], 
@@ -34,8 +35,8 @@ def gen_frames(event):
 
     if event == "Squat":
         reps_s = 0
-        # camera = cv2.VideoCapture('./test_video/squat.mp4')
-        camera = cv2.VideoCapture(0)
+        camera = cv2.VideoCapture('./test_video/squat.mp4')
+        #camera = cv2.VideoCapture(0)
     elif event == "BenchPress":
         reps_b = 0
         camera = cv2.VideoCapture('./test_video/pushup.mp4')
@@ -215,6 +216,12 @@ def result(name):
     f.close()
     
     return params
+
+@app.route('/challenge_result/<name>', methods=['POST'])
+def challenge_result(name):
+    params = request.get_json()
+    predict(params['event'],name)
+
 
 
 # Profile Page
