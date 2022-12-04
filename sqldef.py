@@ -153,16 +153,16 @@ def get_userData_t(cur, con, uid):
     try:
         oneRM = {}
         cur.execute("select MAX(R1rm) from Record where REvent = 'Squat' and UID = '" + uid + "';")
-        con.commit()
+        # con.commit()
         best_s = cur.fetchone()
 
         cur.execute("select MAX(R1rm) from Record where REvent = 'BenchPress' and UID = '" + uid + "';")
-        con.commit()
+        # con.commit()
         best_b = cur.fetchone()
 
         cur.execute("select MAX(R1rm) from Record where REvent = 'Deadlift' and UID = '" + uid + "';")
-        con.commit()
         best_d = cur.fetchone()
+        con.commit()
 
         best_rm = best_s[0] + best_b[0] + best_d[0]
 
@@ -190,21 +190,35 @@ def rank_sys(cur, con):
         userID = cur.fetchall()
         print(userID)
         for i in userID:
-            cur.execute("select MAX(R1rm) from Record where REvent = 'Squat' and UID = '" + i[0] + "';")
-            best_s = cur.fetchall()
+            print(i[0])
+            cur.execute("select Max(CWeight) from Challenge where CEvent = 'Squat' and UID = '" + i[0] + "';")
+            temp = cur.fetchone()[0]
+            if temp != None:
+                best_s = temp
+            else:
+                best_s = 0
 
-            cur.execute("select MAX(R1rm) from Record where REvent = 'BenchPress' and UID = '" + i[0] + "';")
-            best_b = cur.fetchall()
+            cur.execute("select Max(CWeight) from Challenge where CEvent = 'BenchPress' and UID = '" + i[0] + "';")
+            temp = cur.fetchone()[0]
+            if temp != None:
+                best_b = temp
+            else:
+                best_b = 0
 
-            cur.execute("select MAX(R1rm) from Record where REvent = 'Deadlift' and UID = '" + i[0] + "';")
-            best_d = cur.fetchall()
+            cur.execute("select Max(CWeight) from Challenge where CEvent = 'Deadlift' and UID = '" + i[0] + "';")
+            temp = cur.fetchone()[0]
+            if temp != None:
+                best_d = temp
+            else:
+                best_d = 0
 
-            best_rm = best_s[0][0] + best_b[0][0] + best_d[0][0]
+            best_rm = best_s + best_b + best_d
             rank_list[i[0]] = best_rm
 
         rank_list = dict(sorted(rank_list.items(), key=lambda x:x[1], reverse=True))
 
         print("랭크 조회 성공")
+        con.commit()
         return rank_list
 
     except:
@@ -281,8 +295,8 @@ if __name__ == '__main__':
     # print(sign_up(cursor, conn, "kms", "0000"))
     # print(log_in(cursor, conn, "kms", "1234"))
 
-    # print(rank_sys(cursor, conn))
-    print(saveChallenge(cursor, conn, 'Sqaut', 200, 'kms'))
+    print(rank_sys(cursor, conn))
+    # print(saveChallenge(cursor, conn, 'Sqaut', 200, 'kms'))
     # print(get_userData_s(cursor, conn, 'kms'))
     # print(get_userData_b(cursor, conn, 'kms'))
     # print(get_userData_d(cursor, conn, 'kms'))

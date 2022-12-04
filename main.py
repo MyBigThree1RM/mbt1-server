@@ -5,9 +5,10 @@ import pymysql
 import count
 import sqldef
 from collections import deque
+from time import sleep
 import json
 import config
-from train import predict
+# from train import predict
 
 conn = pymysql.connect(host=config.DATABASE_CONFIG['host'],
                         user=config.DATABASE_CONFIG['user'], 
@@ -201,8 +202,6 @@ def result(name):
     sqldef.saveData(cursor, conn, params['event'], params['oneRM'], name)
 
 
-    sqldef.saveChallenge(cursor, conn, params['event'], params['oneRM'], name, params['gym_code'])
-
     where = 'personalData/' + params['event'] + '/' + name
     f = open(where + '_data.csv', 'w')
 
@@ -220,8 +219,9 @@ def result(name):
 @app.route('/challenge_result/<name>', methods=['POST'])
 def challenge_result(name):
     params = request.get_json()
-    predict(params['event'],name)
-
+    sqldef.saveChallenge(cursor, conn, params['event'], params['weight'], name, params['gym_code'])
+    print(name, params['event'], params['weight'], params['gym_code'])
+    return params
 
 
 # Profile Page
